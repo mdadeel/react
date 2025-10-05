@@ -1,0 +1,43 @@
+{
+  "name": "reactapp-project-setup",
+  "version": "2.0.4",
+  "description": "A powerful CLI to quickly scaffold React projects with Vite, TypeScript, Tailwind CSS, and more",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "reactapp": "index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react",
+    "vite",
+    "cli",
+    "tailwind",
+    "typescript",
+    "shadcn",
+    "react-router",
+    "boilerplate",
+    "starter"
+  ],
+  "author": "shahnawas.adeel",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "fs-extra": "^11.3.2",
+    "inquirer": "^9.3.8",
+    "ora": "^7.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdadeel/reactapp-project-setup.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mdadeel/react-setup-pro/issues"
+  },
+  "homepage": "https://github.com/mdadeel/react-setup-pro#readme"
+}
