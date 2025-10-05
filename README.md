@@ -188,7 +188,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - 🐛 [Report Issues](https://github.com/mdadeel/reactapp-project-setup/issues)
 - 💬 [Discussions](https://github.com/mdadeel/reactapp-project-setup/discussions)
-- 📧 Email: your.email@example.com
+- 📧 Email: mdadeel125@gmail.com
 
 ## 🌟 Show Your Support
 
