@@ -18,7 +18,7 @@ const banner = `
 ║  	██║  ██║███████╗██║  ██║╚██████╗   ██║              ║
 ║   	╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝   ╚═╝              ║
 ║                                                           ║
-║              🚀 Project Setup - v2.0.3                    ║
+║              🚀 Project Setup - v2.0.5                    ║
 ║         Create modern web apps in seconds!                ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
@@ -214,15 +214,15 @@ async function createProject() {
     ]);
     console.log('\n');
     
-    // 1. Create Vite project
+    // 1. Create Vite project with latest template
     const spinner = ora({
-      text: chalk.magenta(`Creating ${framework} project...`),
+      text: chalk.magenta(`Creating ${framework} project with latest Vite...`),
       color: 'magenta',
       spinner: 'dots12'
     }).start();
     
     execSync(`npm create vite@latest ${projectName} -- --template ${template}`, { stdio: 'inherit' });
-    spinner.succeed(chalk.cyan(`✓ ${framework.charAt(0).toUpperCase() + framework.slice(1)} project created!`));
+    spinner.succeed(chalk.cyan(`✓ ${framework.charAt(0).toUpperCase() + framework.slice(1)} project created with latest version!`));
     
     process.chdir(projectPath);
     
@@ -231,75 +231,77 @@ async function createProject() {
     execSync('npm install', { stdio: 'ignore' });
     spinner.succeed(chalk.cyan('✓ Dependencies installed!'));
     
-    // 3. Setup Tailwind CSS (Modern v4 with Vite plugin)
+    // 3. Setup Tailwind CSS (Latest Version)
     if (tailwind) {
       spinner.start(chalk.magenta('Setting up Tailwind CSS...'));
       
-      // Install Tailwind v4 with Vite plugin
-      execSync('npm install -D tailwindcss @tailwindcss/vite', { stdio: 'ignore' });
-      
-      // Update vite.config file
-      const viteConfigFile = isTypeScript ? 'vite.config.ts' : 'vite.config.js';
-      
-      if (fs.existsSync(viteConfigFile)) {
-        let viteConfig = fs.readFileSync(viteConfigFile, 'utf8');
+      try {
+        // Install latest Tailwind CSS
+        execSync('npm install -D tailwindcss@latest postcss@latest autoprefixer@latest', { stdio: 'ignore' });
         
-        // Add import at the top
-        if (!viteConfig.includes('@tailwindcss/vite')) {
-          // Find the import section
-          const importMatch = viteConfig.match(/import\s+.*\s+from\s+['"].*['"]/);
-          if (importMatch) {
-            const lastImportIndex = viteConfig.lastIndexOf(importMatch[0]) + importMatch[0].length;
-            viteConfig = viteConfig.slice(0, lastImportIndex) + 
-                        "\nimport tailwindcss from '@tailwindcss/vite'" + 
-                        viteConfig.slice(lastImportIndex);
-          } else {
-            // No imports found, add at the beginning
-            viteConfig = "import tailwindcss from '@tailwindcss/vite'\n" + viteConfig;
-          }
-        }
+        // Create tailwind.config.js manually instead of using init
+        const contentPaths = {
+          react: './src/**/*.{js,jsx,ts,tsx}',
+          vue: './src/**/*.{vue,js,ts,jsx,tsx}',
+          svelte: './src/**/*.{svelte,js,ts,jsx,tsx}',
+          preact: './src/**/*.{js,jsx,ts,tsx}'
+        };
         
-        // Add plugin to plugins array
-        if (!viteConfig.includes('tailwindcss()')) {
-          if (viteConfig.includes('plugins: [')) {
-            // Plugins array exists, add tailwindcss to it
-            viteConfig = viteConfig.replace(
-              /plugins:\s*\[/,
-              'plugins: [\n    tailwindcss(),'
-            );
-          } else {
-            // No plugins array, create one
-            viteConfig = viteConfig.replace(
-              /export default defineConfig\(\{/,
-              'export default defineConfig({\n  plugins: [tailwindcss()],'
-            );
-          }
-        }
+        const tailwindConfig = `/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "${contentPaths[framework] || './src/**/*.{js,jsx,ts,tsx}'}"
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}`;
         
-        fs.writeFileSync(viteConfigFile, viteConfig);
-      }
-      
-      // Update CSS file with modern @import
-      const cssContent = `@import "tailwindcss";
-
-/* Your custom styles below */
+        fs.writeFileSync('tailwind.config.js', tailwindConfig);
+        
+        // Create postcss.config.js
+        const postcssConfig = `export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}`;
+        
+        fs.writeFileSync('postcss.config.js', postcssConfig);
+        
+        // Update CSS file with Tailwind directives
+        const cssContent = `@tailwind base;
+@tailwind components;
+@tailwind utilities;
 `;
-      
-      const cssFiles = ['src/index.css', 'src/style.css', 'src/app.css'];
-      const cssFile = cssFiles.find(file => fs.existsSync(file)) || 'src/index.css';
-      fs.writeFileSync(cssFile, cssContent);
-      
-      spinner.succeed(chalk.cyan('✓ Tailwind CSS configured with Vite plugin!'));
+        
+        const cssFiles = ['src/index.css', 'src/style.css', 'src/app.css'];
+        const cssFile = cssFiles.find(file => fs.existsSync(file)) || 'src/index.css';
+        fs.writeFileSync(cssFile, cssContent);
+        
+        spinner.succeed(chalk.cyan('✓ Latest Tailwind CSS configured!'));
+      } catch (error) {
+        spinner.fail(chalk.red('✗ Tailwind CSS setup failed'));
+        console.log(chalk.yellow('  You can set up Tailwind manually later with: npx tailwindcss init -p'));
+      }
     }
     
-    // 4. Setup Router
+    // 4. Setup Router (Latest Versions)
     if (router) {
       spinner.start(chalk.magenta(`Setting up ${framework} router...`));
       
-      const routerPackage = getRouterPackage(framework);
+      const routerPackages = {
+        react: 'react-router-dom@latest',
+        vue: 'vue-router@latest',
+        svelte: 'svelte-routing@latest'
+      };
+      
+      const routerPackage = routerPackages[framework];
       execSync(`npm install ${routerPackage}`, { stdio: 'ignore' });
       
-      spinner.succeed(chalk.cyan(`✓ ${framework.charAt(0).toUpperCase() + framework.slice(1)} router installed!`));
+      spinner.succeed(chalk.cyan(`✓ Latest ${framework.charAt(0).toUpperCase() + framework.slice(1)} router installed!`));
     }
     
     // 5. Create folder structure
@@ -345,10 +347,10 @@ Welcome to your new ${framework} project! 🚀
 
 ## Tech Stack
 
-- **Framework:** ${framework.charAt(0).toUpperCase() + framework.slice(1)}
+- **Framework:** ${framework.charAt(0).toUpperCase() + framework.slice(1)} (Latest)
 - **Language:** ${isTypeScript ? 'TypeScript' : 'JavaScript'}
-- **Build Tool:** Vite
-${tailwind ? '- **Styling:** Tailwind CSS\n' : ''}${router ? `- **Router:** ${getRouterPackage(framework)}\n` : ''}
+- **Build Tool:** Vite (Latest)
+${tailwind ? '- **Styling:** Tailwind CSS (Latest)\n' : ''}${router ? `- **Router:** ${framework === 'react' ? 'React Router' : framework === 'vue' ? 'Vue Router' : 'Svelte Routing'} (Latest)\n` : ''}
 ## Getting Started
 
 \`\`\`bash
@@ -368,6 +370,10 @@ Open http://localhost:5173 in your browser
 - [${framework.charAt(0).toUpperCase() + framework.slice(1)} Documentation](${frameworkDocs[framework]})
 - [Vite Documentation](https://vitejs.dev)
 ${tailwind ? '- [Tailwind CSS Documentation](https://tailwindcss.com)\n' : ''}${isTypeScript ? '- [TypeScript Documentation](https://www.typescriptlang.org)\n' : ''}
+## Package Versions
+
+All packages are installed with \`@latest\` tag to ensure you're using the most up-to-date versions.
+
 Happy coding! 💻✨
 `;
     
@@ -399,7 +405,8 @@ Happy coding! 💻✨
     
     if (tailwind) {
       console.log(chalk.cyan.bold('  💡 Tailwind Tip:'));
-      console.log(chalk.gray('     Try: ') + chalk.white('<h1 className="text-blue-500 text-4xl">Hello!</h1>'));
+      console.log(chalk.gray('     Try: ') + chalk.white('className="bg-blue-500 text-white p-4 rounded-lg"'));
+      console.log(chalk.gray('     All utility classes are available!'));
       console.log('');
     }
     
