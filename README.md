@@ -39,19 +39,42 @@ reactapp
 Then follow the interactive prompts:
 
 ```
-? 📦 Project name: my-awesome-app
-? 🎨 Choose your framework: React
-? 📝 Select your language: JavaScript
-? 🎨 Add Tailwind CSS? Yes
-? 🧭 Include router? No
-? 📁 Create organized folder structure? Yes
+┌─ 📁 Project name: my-awesome-app
+└──
+┌─ 🎨 Choose your framework:   ⚛️   React - The UI library everyone loves
+└──
+┌─ 📝 Select your language:   📘   TypeScript - Type-safe & scalable
+└──
+┌─ 🎨 Add Tailwind CSS? [ YES ]
+└──
+┌─ 🧭 Include router? [ NO ]
+└──
+┌─ 📁 Organized folder structure? [ YES ]
+└──
+```
+
+The CLI features a neofetch-inspired banner design with SA ASCII on the left and system information on the right:
+
+```
+  ██████╗ │ Package:     reactapp-project-setup
+  ╚════██╗│ Version:     v4.7.0
+   █████╔╝│ Created:     2025
+   ╚═══██╗│ License:     MIT
+  ██████╔╝│ OS:          Node.js >=18.0.0
+  ╚═════╝ │ Shell:       CLI Interface
+          │ Terminal:    Inquirer.js
+          │ Author:      Shahnawas Adeel
+          │ GitHub:      mdadeel/reactapp-project-setup
+
+  🚀 Create Modern Web Apps in Seconds
+  The fastest way to scaffold your next project
 ```
 
 ### Quick Example
 
 ```bash
 # Install globally
-npm install -g ractapp-project-setup
+npm install -g reactapp-project-setup
 
 # Create a new project
 reactapp
