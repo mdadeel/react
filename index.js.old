@@ -7,18 +7,23 @@ import { execSync } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 
+// Read version from package.json to ensure consistency
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const packageJson = require('./package.json');
+
 // Neofetch-style banner with SA ASCII on left and info on right
 const saArt = [
-  ` ${chalk.hex('#6C63FF')('██████╗ ')}${chalk.hex('#B0B0B0')('│ Package:     ')}${chalk.hex('#6C63FF').bold('reactapp-project-setup')}`,
-  ` ${chalk.hex('#6C63FF')('╚════██╗')}${chalk.hex('#B0B0B0')('│ Version:     ')}${chalk.hex('#6C63FF').bold('v4.7.0')}`,
-  ` ${chalk.hex('#6C63FF')(' █████╔╝')}${chalk.hex('#B0B0B0')('│ Created:     ')}${chalk.hex('#6C63FF').bold('2025')}`,
-  ` ${chalk.hex('#6C63FF')(' ╚═══██╗')}${chalk.hex('#B0B0B0')('│ License:     ')}${chalk.hex('#6C63FF').bold('MIT')}`,
-  ` ${chalk.hex('#6C63FF')('██████╔╝')}${chalk.hex('#B0B0B0')('│ OS:          ')}${chalk.hex('#6C63FF').bold('Node.js >=18.0.0')}`,
-  ` ${chalk.hex('#6C63FF')('╚═════╝ ')}${chalk.hex('#B0B0B0')('│ Shell:       ')}${chalk.hex('#6C63FF').bold('CLI Interface')}`,
-  `         ${chalk.hex('#B0B0B0')('│ Terminal:    ')}${chalk.hex('#6C63FF').bold('Inquirer.js')}`,
-  `         ${chalk.hex('#B0B0B0')('│ Author:      ')}${chalk.hex('#6C63FF').bold('Shahnawas Adeel')}`,
-  `         ${chalk.hex('#B0B0B0')('│ GitHub:      ')}${chalk.hex('#6C63FF').bold('mdadeel/reactapp-project-setup')}`,
-  ` `,
+  ` ${chalk.hex('#6C63FF')('██████╗ ██████╗ ')}${chalk.hex('#B0B0B0')('│ Package:     ')}${chalk.hex('#6C63FF').bold('reactapp-project-setup')}`,
+  ` ${chalk.hex('#6C63FF')('╚════██╗╚════██╗')}${chalk.hex('#B0B0B0')('│ Version:     ')}${chalk.hex('#6C63FF').bold(`v\${packageJson.version}`)}`,
+  ` ${chalk.hex('#6C63FF')(' █████╔╝ █████╔╝')}${chalk.hex('#B0B0B0')('│ Created:     ')}${chalk.hex('#6C63FF').bold('2025')}`,
+  ` ${chalk.hex('#6C63FF')(' ╚═══██╗ ╚═══██╗')}${chalk.hex('#B0B0B0')('│ License:     ')}${chalk.hex('#6C63FF').bold('MIT')}`,
+  ` ${chalk.hex('#6C63FF')('██████╔╝██████╔╝')}${chalk.hex('#B0B0B0')('│ OS:          ')}${chalk.hex('#6C63FF').bold('Node.js >=18.0.0')}`,
+  ` ${chalk.hex('#6C63FF')('╚═════╝ ╚═════╝ ')}${chalk.hex('#B0B0B0')('│ Shell:       ')}${chalk.hex('#6C63FF').bold('CLI Interface')}`,
+  `                 ${chalk.hex('#B0B0B0')('│ Terminal:    ')}${chalk.hex('#6C63FF').bold('Inquirer.js')}`,
+  `                 ${chalk.hex('#B0B0B0')('│ Author:      ')}${chalk.hex('#6C63FF').bold('Shahnawas Adeel')}`,
+  `                 ${chalk.hex('#B0B0B0')('│ GitHub:      ')}${chalk.hex('#6C63FF').bold('mdadeel/reactapp-project-setup')}`,
+  ``,
   ` ${chalk.hex('#6C63FF').bold('🚀 Create Modern Web Apps in Seconds')}`,
   ` ${chalk.hex('#8A86A0').italic('The fastest way to scaffold your next project')}`
 ];

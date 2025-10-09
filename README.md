@@ -56,15 +56,15 @@ Then follow the interactive prompts:
 The CLI features a neofetch-inspired banner design with SA ASCII on the left and system information on the right:
 
 ```
-  ██████╗ │ Package:     reactapp-project-setup
-  ╚════██╗│ Version:     v4.7.0
-   █████╔╝│ Created:     2025
-   ╚═══██╗│ License:     MIT
-  ██████╔╝│ OS:          Node.js >=18.0.0
-  ╚═════╝ │ Shell:       CLI Interface
-          │ Terminal:    Inquirer.js
-          │ Author:      Shahnawas Adeel
-          │ GitHub:      mdadeel/reactapp-project-setup
+  ██████╗ ██████╗ │ Package:     reactapp-project-setup
+  ╚════██╗╚════██╗│ Version:     v4.8.0
+   █████╔╝ █████╔╝│ Created:     2025
+   ╚═══██╗ ╚═══██╗│ License:     MIT
+  ██████╔╝██████╔╝│ OS:          Node.js >=18.0.0
+  ╚═════╝ ╚═════╝ │ Shell:       CLI Interface
+                  │ Terminal:    Inquirer.js
+                  │ Author:      Shahnawas Adeel
+                  │ GitHub:      mdadeel/reactapp-project-setup
 
   🚀 Create Modern Web Apps in Seconds
   The fastest way to scaffold your next project
