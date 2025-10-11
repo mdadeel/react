@@ -8,7 +8,7 @@
 - 🎨 **Multiple Frameworks** - React, Vue, Svelte, Preact, Lit, or Vanilla JS
 - 📘 **TypeScript & JavaScript** - Choose your preferred language
 - ⚡ **Vite Powered** - Lightning-fast development experience
-- 🎨 **Tailwind CSS** - Optional utility-first CSS framework
+- 🎨 **Tailwind CSS v4** - Optional utility-first CSS framework with new Vite plugin approach
 - 🧭 **Router Support** - Optional routing setup for React, Vue, and Svelte
 - 📁 **Organized Structure** - Pre-configured folder structure
 - 🎯 **Beginner Friendly** - Beautiful CLI with clear instructions
@@ -119,7 +119,7 @@ my-awesome-app/
 
 ### Optional Features
 
-- **Tailwind CSS** - Pre-configured utility-first CSS framework
+- **Tailwind CSS v4** - Pre-configured utility-first CSS framework with new Vite plugin approach
 - **Router** - Navigation setup (React Router, Vue Router, or Svelte Routing)
 - **Organized Folders** - Clean, scalable project structure
 

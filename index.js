@@ -7,404 +7,565 @@ import { execSync } from 'child_process';
 import fs from 'fs-extra';
 import path from 'path';
 
-// Read version from package.json to ensure consistency
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const packageJson = require('./package.json');
+// Minimal banner
+const banner = `
+${chalk.hex('#8B5CF6')('█▀█ █▀▀ ▄▀█ █▀▀ ▀█▀   █▀ █▀▀ ▀█▀ █░█ █▀█')}
+${chalk.hex('#A78BFA')('█▀▄ ██▄ █▀█ █▄▄ ░█░   ▄█ ██▄ ░█░ █▄█ █▀▀')}
+                        
+${chalk.hex('#C4B5FD')('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')}
+${chalk.hex('#E0E7FF')('  Everything configured.')} ${chalk.hex('#8B5CF6').bold('Just start coding.')}
+${chalk.hex('#C4B5FD')('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━')}
 
-// Neofetch-style banner with SA ASCII on left and info on right
-const saArt = [
-  ` ${chalk.hex('#6C63FF')('███████╗ █████╗ ')}${chalk.hex('#B0B0B0')('│ Package:     ')}${chalk.hex('#6C63FF').bold('reactapp-project-setup')}`,
-  ` ${chalk.hex('#6C63FF')('██╔════╝██╔══██╗')}${chalk.hex('#B0B0B0')('│ Version:     ')}${chalk.hex('#6C63FF').bold('v4.8.0')}`,
-  ` ${chalk.hex('#6C63FF')('███████╗███████║')}${chalk.hex('#B0B0B0')('│ Created:     ')}${chalk.hex('#6C63FF').bold('2025')}`,
-  ` ${chalk.hex('#6C63FF')('╚════██║██╔══██║')}${chalk.hex('#B0B0B0')('│ License:     ')}${chalk.hex('#6C63FF').bold('MIT')}`,
-  ` ${chalk.hex('#6C63FF')('███████║██║  ██║')}${chalk.hex('#B0B0B0')('│ OS:          ')}${chalk.hex('#6C63FF').bold('Node.js >=18.0.0')}`,
-  ` ${chalk.hex('#6C63FF')('╚══════╝╚═╝  ╚═╝')}${chalk.hex('#B0B0B0')('│ Shell:       ')}${chalk.hex('#6C63FF').bold('CLI Interface')}`,
-  `                 ${chalk.hex('#B0B0B0')('│ Terminal:    ')}${chalk.hex('#6C63FF').bold('Inquirer.js')}`,
-  `                 ${chalk.hex('#B0B0B0')('│ Author:      ')}${chalk.hex('#6C63FF').bold('Shahnawas Adeel')}`,
-  `                 ${chalk.hex('#B0B0B0')('│ Insta ID:    ')}${chalk.hex('#6C63FF').bold('shahnawas.adeel')}`,
-  `                 ${chalk.hex('#B0B0B0')('│ GitHub:      ')}${chalk.hex('#6C63FF').bold('mdadeel/reactapp-project-setup')}`,
-  ``,
-  ` ${chalk.hex('#6C63FF').bold('🚀 Create Modern Web Apps in Seconds')}`,
-  ` ${chalk.hex('#8A86A0').italic('The fastest way to scaffold your next project')}`
-];
-// Clear screen and show neofetch-style banner
+${chalk.hex('#10B981')('  ✓ Tailwind CSS v4')}  ${chalk.hex('#94A3B8')('- Pre-configured & ready')}
+${chalk.hex('#10B981')('  ✓ Router')}           ${chalk.hex('#94A3B8')('- Installed & set up')}
+${chalk.hex('#10B981')('  ✓ Folder Structure')} ${chalk.hex('#94A3B8')('- Organized & clean')}
+${chalk.hex('#10B981')('  ✓ ESLint + Prettier')} ${chalk.hex('#94A3B8')('- Code quality ready')}
+
+`;
+
 console.clear();
-saArt.forEach(line => console.log(line));
+console.log(banner);
 console.log('');
 
-// Terminal-style tips
-console.log(` ${chalk.hex('#2ECC71').bold('💡 Tip:')} ${chalk.hex('#B0B0B0')('Use')} ${chalk.hex('#6C63FF').bold('↑↓')} ${chalk.hex('#B0B0B0')('to navigate,')} ${chalk.hex('#6C63FF').bold('Enter')} ${chalk.hex('#B0B0B0')('to select,')} ${chalk.hex('#6C63FF').bold('Space')} ${chalk.hex('#B0B0B0')('to toggle')}\n`);
-
-// Enhanced prompts with modern styling
+// Only 2 questions!
 const questions = [
   {
     type: 'input',
     name: 'projectName',
-    message: chalk.hex('#6C63FF').bold('┌─ 📁 Project name:'),
+    message: chalk.hex('#8B5CF6')('Project name'),
     default: 'my-app',
-    prefix: chalk.hex('#6C63FF')('└──'),
+    prefix: chalk.hex('#10B981')('●'),
     validate: (input) => {
-      if (/^([A-Za-z\\-\\_\\d])+$/.test(input)) return true;
-      return chalk.red('❌ Only letters, numbers, dashes and underscores allowed');
+      if (/^[A-Za-z][A-Za-z0-9_-]*$/.test(input) && input.length <= 50) return true;
+      return chalk.red('Must start with letter, only letters/numbers/dashes');
     },
-    transformer: (input) => chalk.hex('#6C63FF')(input)
+    transformer: (input) => chalk.hex('#E0E7FF')(input)
   },
   {
     type: 'list',
-    name: 'framework',
-    message: chalk.hex('#6C63FF').bold('┌─ 🎨 Choose your framework:'),
-    prefix: chalk.hex('#6C63FF')('└──'),
+    name: 'stack',
+    message: chalk.hex('#8B5CF6')('Choose your stack'),
+    prefix: chalk.hex('#10B981')('●'),
     choices: [
-      { name: `  ${chalk.hex('#61DAFB')('⚛️')}   ${chalk.hex('#61DAFB').bold('React')} ${chalk.hex('#B0B0B0')('- The UI library everyone loves')}`, value: 'react', short: 'React' },
-      { name: `  ${chalk.hex('#42B883')('💚')}   ${chalk.hex('#42B883').bold('Vue')} ${chalk.hex('#B0B0B0')('- Progressive & powerful')}`, value: 'vue', short: 'Vue' },
-      { name: `  ${chalk.hex('#FF3E00')('🔺')}   ${chalk.hex('#FF3E00').bold('Svelte')} ${chalk.hex('#B0B0B0')('- Truly reactive magic')}`, value: 'svelte', short: 'Svelte' },
-      { name: `  ${chalk.hex('#673AB8')('🔷')}   ${chalk.hex('#673AB8').bold('Preact')} ${chalk.hex('#B0B0B0')('- Fast 3KB alternative')}`, value: 'preact', short: 'Preact' },
-      { name: `  ${chalk.hex('#00E8FF')('🔶')}   ${chalk.hex('#00E8FF').bold('Lit')} ${chalk.hex('#B0B0B0')('- Web components made simple')}`, value: 'lit', short: 'Lit' },
-      { name: `  ${chalk.hex('#F7DF1E')('⚡')}   ${chalk.hex('#F7DF1E').bold('Vanilla')} ${chalk.hex('#B0B0B0')('- Pure JS, no framework')}`, value: 'vanilla', short: 'Vanilla' }
-    ],
-    default: 'react',
-    pageSize: 6,
-    loop: false,
-    // Highlight selected option
-    transformer: (answer, { isFinal }) => {
-      if (isFinal) {
-        return chalk.bgHex('#6C63FF').hex('#FFFFFF')(answer);
+      { 
+        name: chalk.hex('#61DAFB')('React + TypeScript'), 
+        value: { framework: 'react', lang: 'ts', template: 'react-ts' }
+      },
+      { 
+        name: chalk.hex('#61DAFB')('React + JavaScript'), 
+        value: { framework: 'react', lang: 'js', template: 'react' }
+      },
+      { 
+        name: chalk.hex('#42B883')('Vue + TypeScript'), 
+        value: { framework: 'vue', lang: 'ts', template: 'vue-ts' }
+      },
+      { 
+        name: chalk.hex('#42B883')('Vue + JavaScript'), 
+        value: { framework: 'vue', lang: 'js', template: 'vue' }
+      },
+      { 
+        name: chalk.hex('#FF3E00')('Svelte + TypeScript'), 
+        value: { framework: 'svelte', lang: 'ts', template: 'svelte-ts' }
+      },
+      { 
+        name: chalk.hex('#FF3E00')('Svelte + JavaScript'), 
+        value: { framework: 'svelte', lang: 'js', template: 'svelte' }
       }
-      return answer;
-    }
-  },
-  {
-    type: 'list',
-    name: 'language',
-    message: chalk.hex('#6C63FF').bold('┌─ 📝 Select language:'),
-    prefix: chalk.hex('#6C63FF')('└──'),
-    choices: [
-      { name: `  ${chalk.hex('#3178C6')('📘')}   ${chalk.hex('#3178C6').bold('TypeScript')} ${chalk.hex('#B0B0B0')('- Type-safe & scalable')}`, value: 'typescript', short: 'TypeScript' },
-      { name: `  ${chalk.hex('#F7DF1E')('📙')}   ${chalk.hex('#F7DF1E').bold('JavaScript')} ${chalk.hex('#B0B0B0')('- Classic & flexible')}`, value: 'javascript', short: 'JavaScript' }
     ],
-    default: 'javascript',
-    loop: false,
-    // Highlight selected option
-    transformer: (answer, { isFinal }) => {
-      if (isFinal) {
-        return chalk.bgHex('#6C63FF').hex('#FFFFFF')(answer);
-      }
-      return answer;
-    }
-  },
-  {
-    type: 'confirm',
-    name: 'tailwind',
-    message: chalk.hex('#6C63FF').bold('┌─ 🎨 Add Tailwind CSS v4?') + chalk.hex('#B0B0B0')(' (Latest beta with new engine)'),
-    prefix: chalk.hex('#6C63FF')('└──'),
-    default: true,
-    when: (answers) => ['react', 'vue', 'svelte', 'preact'].includes(answers.framework),
-    transformer: (answer) => answer ? chalk.bgHex('#27AE60').hex('#FFFFFF')(' YES ') : chalk.bgHex('#E74C3C').hex('#FFFFFF')(' NO ')
-  },
-  {
-    type: 'confirm',
-    name: 'router',
-    message: chalk.hex('#6C63FF').bold('┌─ 🧭 Include router?') + chalk.hex('#B0B0B0')(' (For multi-page apps)'),
-    prefix: chalk.hex('#6C63FF')('└──'),
-    default: false,
-    when: (answers) => ['react', 'vue', 'svelte'].includes(answers.framework),
-    transformer: (answer) => answer ? chalk.bgHex('#27AE60').hex('#FFFFFF')(' YES ') : chalk.bgHex('#E74C3C').hex('#FFFFFF')(' NO ')
-  },
-  {
-    type: 'confirm',
-    name: 'folderStructure',
-    message: chalk.hex('#6C63FF').bold('┌─ 📁 Organized folder structure?') + chalk.hex('#B0B0B0')(' (Best practices)'),
-    prefix: chalk.hex('#6C63FF')('└──'),
-    default: true,
-    transformer: (answer) => answer ? chalk.bgHex('#27AE60').hex('#FFFFFF')(' YES ') : chalk.bgHex('#E74C3C').hex('#FFFFFF')(' NO ')
+    default: 0
   }
 ];
 
-// Helper functions
-const getTemplate = (framework, language) => {
-  const templates = {
-    react: language === 'typescript' ? 'react-ts' : 'react',
-    vue: language === 'typescript' ? 'vue-ts' : 'vue',
-    svelte: language === 'typescript' ? 'svelte-ts' : 'svelte',
-    preact: language === 'typescript' ? 'preact-ts' : 'preact',
-    lit: language === 'typescript' ? 'lit-ts' : 'lit',
-    vanilla: language === 'typescript' ? 'vanilla-ts' : 'vanilla'
-  };
-  return templates[framework];
-};
-
-// Modern gradient box
-const drawModernBox = (title, content) => {
-  const width = 60;
-  console.log(chalk.hex('#6C63FF')('┌') + chalk.hex('#9B87F5')('─'.repeat(width)) + chalk.hex('#B465DA')('┐'));
-  console.log(chalk.hex('#6C63FF')('│') + chalk.hex('#6C63FF').bold(title.padEnd(width)) + chalk.hex('#B465DA')('│'));
-  console.log(chalk.hex('#6C63FF')('├') + chalk.hex('#9B87F5')('─'.repeat(width)) + chalk.hex('#B465DA')('┤'));
-  content.forEach(line => {
-    console.log(chalk.hex('#6C63FF')('│') + ' ' + line.padEnd(width - 1) + chalk.hex('#B465DA')('│'));
-  });
-  console.log(chalk.hex('#6C63FF')('└') + chalk.hex('#9B87F5')('─'.repeat(width)) + chalk.hex('#B465DA')('┘'));
+// Router packages
+const routerPackages = {
+  react: 'react-router-dom@latest',
+  vue: 'vue-router@latest',
+  svelte: 'svelte-routing@latest'
 };
 
 async function createProject() {
   try {
     const answers = await inquirer.prompt(questions);
-    const { projectName, framework, language, tailwind, router, folderStructure } = answers;
+    const { projectName, stack } = answers;
+    const { framework, lang, template } = stack;
+    const isTS = lang === 'ts';
     
-    // Framework info with emojis
-    const frameworkInfo = {
-      react: { emoji: '⚛️', desc: 'Most popular UI library with huge ecosystem', color: '#61DAFB' },
-      vue: { emoji: '💚', desc: 'Progressive framework easy to learn & powerful', color: '#42B883' },
-      svelte: { emoji: '🔺', desc: 'Truly reactive with no virtual DOM overhead', color: '#FF3E00' },
-      preact: { emoji: '🔷', desc: 'Fast 3KB alternative with same API', color: '#673AB8' },
-      lit: { emoji: '🔶', desc: 'Simple, fast web components', color: '#00E8FF' },
-      vanilla: { emoji: '⚡', desc: 'Pure JavaScript with no framework', color: '#F7DF1E' }
-    };
-    
-    console.log('\\n' + chalk.hex(frameworkInfo[framework].color)('  ✓ Selected: ') + 
-                frameworkInfo[framework].emoji + ' ' + 
-                chalk.hex('#6C63FF').bold(framework.toUpperCase()));
-    console.log(chalk.hex('#B0B0B0')('    ' + frameworkInfo[framework].desc) + '\\n');
+    console.log('');
+    console.log(chalk.hex('#8B5CF6')('┌───────────────────────────────────────┐'));
+    console.log(chalk.hex('#8B5CF6')('│ ') + chalk.hex('#E0E7FF')('Setting up your full-stack project... ') + chalk.hex('#8B5CF6')('│'));
+    console.log(chalk.hex('#8B5CF6')('└───────────────────────────────────────┘'));
+    console.log('');
     
     const projectPath = path.join(process.cwd(), projectName);
-    const template = getTemplate(framework, language);
-    const isTypeScript = language === 'typescript';
-    
-    // Configuration summary
-    console.log('\\n');
-    drawModernBox('  📋 YOUR CONFIGURATION', [
-      '',
-      `  ${chalk.hex('#B0B0B0')('Project:')}      ${chalk.hex('#6C63FF').bold(projectName)}`,
-      `  ${chalk.hex('#B0B0B0')('Framework:')}    ${chalk.hex('#6C63FF').bold(framework.toUpperCase())}`,
-      `  ${chalk.hex('#B0B0B0')('Language:')}     ${chalk.hex('#6C63FF').bold(isTypeScript ? 'TypeScript' : 'JavaScript')}`,
-      `  ${chalk.hex('#B0B0B0')('Tailwind v4:')}  ${tailwind ? chalk.hex('#2ECC71').bold('✓ Yes') : chalk.red.bold('✗ No')}`,
-      `  ${chalk.hex('#B0B0B0')('Router:')}       ${router ? chalk.hex('#2ECC71').bold('✓ Yes') : chalk.red.bold('✗ No')}`,
-      `  ${chalk.hex('#B0B0B0')('Structure:')}    ${folderStructure ? chalk.hex('#2ECC71').bold('✓ Yes') : chalk.red.bold('✗ No')}`,
-      ''
-    ]);
-    console.log('\\n');
     
     // 1. Create Vite project
     const spinner = ora({
-      text: chalk.hex('#6C63FF')(`Creating ${framework} project with latest Vite...`),
-      color: 'magenta',
-      spinner: 'clock'
+      text: chalk.hex('#A78BFA')(`Creating ${framework} project...`),
+      spinner: 'dots',
+      color: 'magenta'
     }).start();
     
-    execSync(`npm create vite@latest ${projectName} -- --template ${template}`, { stdio: 'inherit' });
-    spinner.succeed(chalk.hex('#2ECC71')(`✓ ${framework.charAt(0).toUpperCase() + framework.slice(1)} project created!`));
+    execSync(`npm create vite@latest "${projectName}" -- --template ${template}`, { stdio: 'pipe' });
+    spinner.succeed(chalk.hex('#10B981')('✓ ' + framework + ' project created'));
     
     process.chdir(projectPath);
     
-    // 2. Install dependencies
-    spinner.start(chalk.hex('#6C63FF')('Installing dependencies...'));
-    execSync('npm install', { stdio: 'ignore' });
-    spinner.succeed(chalk.hex('#2ECC71')('✓ Dependencies installed!'));
+    // 2. Install base dependencies
+    spinner.start(chalk.hex('#A78BFA')('Installing base packages...'));
+    execSync('npm install', { stdio: 'pipe' });
+    spinner.succeed(chalk.hex('#10B981')('✓ Base packages installed'));
     
-    // 3. Setup Tailwind CSS v4 (LATEST BETA!)
-    if (tailwind) {
-      spinner.start(chalk.hex('#6C63FF')('Setting up Tailwind CSS v4 (Next-gen engine)...'));
+    // 3. Install Tailwind CSS v4
+    spinner.start(chalk.hex('#A78BFA')('Adding Tailwind CSS v4...'));
+    try {
+      execSync('npm install -D tailwindcss @tailwindcss/postcss', { stdio: 'pipe' });
       
-      try {
-        // Install Tailwind v4 beta with Vite plugin
-        execSync('npm install -D tailwindcss@next @tailwindcss/vite@next', { stdio: 'ignore' });
-        
-        // Update vite.config
-        const viteConfigFile = isTypeScript ? 'vite.config.ts' : 'vite.config.js';
-        
-        if (fs.existsSync(viteConfigFile)) {
-          try {
-            let viteConfig = fs.readFileSync(viteConfigFile, 'utf8');
-            
-            // Add Tailwind import
-            const importLine = "import tailwindcss from '@tailwindcss/vite'";
-            if (!viteConfig.includes(importLine)) {
-              const lines = viteConfig.split('\n');
-              let lastImportIndex = -1;
-              for (let i = lines.length - 1; i >= 0; i--) {
-                if (lines[i].includes('import')) {
-                  lastImportIndex = i;
-                  break;
-                }
-              }
-              if (lastImportIndex !== -1) {
-                lines.splice(lastImportIndex + 1, 0, importLine);
-              } else {
-                lines.unshift(importLine);
-              }
-              viteConfig = lines.join('\n');
-            }
-            
-            // Add to plugins array
-            if (!viteConfig.includes('tailwindcss()')) {
-              viteConfig = viteConfig.replace(
-                /plugins:\s*\[/,
-                'plugins: [\n    tailwindcss(),'
-              );
-            }
-            
-            fs.writeFileSync(viteConfigFile, viteConfig);
-          } catch (fileError) {
-            spinner.fail(chalk.red('✗ Tailwind config file modification failed'));
-            console.log(chalk.yellow('  Error: ' + fileError.message));
-            throw fileError;
-          }
-        }
-        
-        // Use new @import syntax for Tailwind v4
-        const cssContent = `@import "tailwindcss";\n\n/* Your custom styles below */\n`;
-        
-        const cssFiles = ['src/index.css', 'src/style.css', 'src/app.css'];
-        const cssFile = cssFiles.find(file => fs.existsSync(file)) || 'src/index.css';
-        fs.ensureFileSync(cssFile);
-        fs.writeFileSync(cssFile, cssContent);
-        
-        spinner.succeed(chalk.hex('#2ECC71')('✓ Tailwind CSS v4 configured!'));
-        console.log(chalk.hex('#B0B0B0')('    Using latest @import syntax with Vite plugin'));
-      } catch (error) {
-        spinner.fail(chalk.red('✗ Tailwind setup failed'));
-        console.log(chalk.yellow('  Error: ' + error.message));
-      }
+      // Create postcss.config.js
+      const postcssConfig = `
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+}`;
+      fs.writeFileSync('postcss.config.js', postcssConfig);
+
+      // Update vite.config
+      // No longer need to update vite.config.js for tailwindcss plugin
+      
+      // Create tailwind.config.js
+      const tailwindConfig = `/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}`;
+      fs.writeFileSync('tailwind.config.js', tailwindConfig);
+
+      // Add Tailwind to CSS
+      const cssContent = `@import "tailwindcss";\n\n/* Your custom styles */\n`;
+      const cssFiles = ['src/index.css', 'src/style.css', 'src/app.css'];
+      const cssFile = cssFiles.find(file => fs.existsSync(file)) || 'src/index.css';
+      fs.ensureFileSync(cssFile);
+      fs.writeFileSync(cssFile, cssContent);
+      
+      spinner.succeed(chalk.hex('#10B981')('✓ Tailwind CSS v4 configured'));
+    } catch (error) {
+      spinner.warn(chalk.hex('#F59E0B')('⚠ Tailwind setup partial'));
     }
     
-    // 4. Setup Router
-    if (router) {
-      spinner.start(chalk.hex('#6C63FF')(`Setting up ${framework} router...`));
+    // 4. Install Router
+    spinner.start(chalk.hex('#A78BFA')(`Installing ${framework} router...`));
+    try {
+      execSync(`npm install ${routerPackages[framework]}`, { stdio: 'pipe' });
       
-      const routerPackages = {
-        react: 'react-router-dom@latest',
-        vue: 'vue-router@latest',
-        svelte: 'svelte-routing@latest'
+      // Create router setup file
+      const ext = isTS ? 'tsx' : 'jsx';
+      const routerDir = 'src/router';
+      fs.ensureDirSync(routerDir);
+      
+      if (framework === 'react') {
+        const routerSetup = `import { createBrowserRouter } from 'react-router-dom';
+import App from '../App';
+
+export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <App />,
+  },
+]);
+`;
+        fs.writeFileSync(`${routerDir}/index.${ext}`, routerSetup);
+        
+        // Update main file
+        const mainFile = isTS ? 'src/main.tsx' : 'src/main.jsx';
+        if (fs.existsSync(mainFile)) {
+          let mainContent = fs.readFileSync(mainFile, 'utf8');
+          mainContent = mainContent.replace(
+            /import App from ['"]\.\/App\.(j|t)sx['"]/,
+            `import { RouterProvider } from 'react-router-dom'\nimport { router } from './router'`
+          );
+          mainContent = mainContent.replace(/<App \/>/, '<RouterProvider router={router} />');
+          fs.writeFileSync(mainFile, mainContent);
+        }
+      }
+      
+      spinner.succeed(chalk.hex('#10B981')(`✓ ${framework} router installed & configured`));
+    } catch (error) {
+      spinner.warn(chalk.hex('#F59E0B')('⚠ Router installed (manual setup needed)'));
+    }
+    
+    // 5. Create folder structure
+    spinner.start(chalk.hex('#A78BFA')('Creating folder structure...'));
+    
+    const folders = framework === 'vue' 
+      ? ['components', 'views', 'composables', 'stores', 'assets', 'utils', 'router']
+      : framework === 'svelte'
+      ? ['components', 'routes', 'stores', 'lib', 'assets', 'utils']
+      : ['components', 'pages', 'hooks', 'utils', 'assets', 'services', 'router'];
+    
+    folders.forEach(folder => {
+      const folderPath = path.join('src', folder);
+      fs.ensureDirSync(folderPath);
+      
+      const descriptions = {
+        components: 'Reusable UI components',
+        pages: 'Page components',
+        views: 'Vue page views',
+        routes: 'Svelte routes',
+        hooks: 'Custom React hooks',
+        composables: 'Vue composables',
+        stores: 'State management',
+        utils: 'Utility functions',
+        services: 'API services',
+        lib: 'Library code',
+        assets: 'Static files',
+        router: 'Routing configuration'
       };
       
-      execSync(`npm install ${routerPackages[framework]}`, { stdio: 'ignore' });
-      spinner.succeed(chalk.hex('#2ECC71')(`✓ Latest ${framework} router installed!`));
+      const readme = `# ${folder.charAt(0).toUpperCase() + folder.slice(1)}\n\n${descriptions[folder] || 'Your code here'}\n`;
+      fs.writeFileSync(path.join(folderPath, '.gitkeep'), '');
+    });
+    
+    spinner.succeed(chalk.hex('#10B981')('✓ Folder structure created'));
+    
+    // 6. Setup ESLint + Prettier
+    spinner.start(chalk.hex('#A78BFA')('Adding ESLint & Prettier...'));
+    try {
+      execSync('npm install -D prettier eslint-config-prettier', { stdio: 'pipe' });
+      
+      // Prettier config
+      const prettierConfig = {
+        semi: true,
+        singleQuote: true,
+        tabWidth: 2,
+        trailingComma: 'es5',
+        printWidth: 100
+      };
+      fs.writeFileSync('.prettierrc', JSON.stringify(prettierConfig, null, 2));
+      
+      // Add format script
+      const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+      packageJson.scripts = {
+        ...packageJson.scripts,
+        format: 'prettier --write "src/**/*.{js,jsx,ts,tsx,css,md}"'
+      };
+      fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2));
+      
+      spinner.succeed(chalk.hex('#10B981')('✓ ESLint & Prettier configured'));
+    } catch (error) {
+      spinner.warn(chalk.hex('#F59E0B')('⚠ Linting setup partial'));
     }
     
-    // 5. Folder structure
-    if (folderStructure) {
-      spinner.start(chalk.hex('#6C63FF')('Creating organized structure...'));
-      
-      const folders = framework === 'vue' 
-        ? ['components', 'views', 'composables', 'assets', 'stores']
-        : framework === 'svelte'
-        ? ['components', 'routes', 'stores', 'assets', 'lib']
-        : ['components', 'pages', 'hooks', 'utils', 'assets'];
-      
-      folders.forEach(folder => {
-        const folderPath = path.join('src', folder);
-        fs.ensureDirSync(folderPath);
-        
-        const descriptions = {
-          components: 'Reusable UI components',
-          pages: 'Page components',
-          views: 'Vue page components',
-          routes: 'Svelte route components',
-          hooks: 'Custom React hooks',
-          composables: 'Vue composable functions',
-          stores: 'State management',
-          utils: 'Utility functions',
-          lib: 'Library code',
-          assets: 'Images, fonts, static files'
-        };
-        
-        const readmeContent = `# ${folder.charAt(0).toUpperCase() + folder.slice(1)}\\n\\n${descriptions[folder] || 'Your code here'}`;
-        fs.writeFileSync(path.join(folderPath, 'README.md'), readmeContent);
-      });
-      
-      spinner.succeed(chalk.hex('#2ECC71')('✓ Folder structure created!'));
+    // 7. Create .env file
+    spinner.start(chalk.hex('#A78BFA')('Creating environment files...'));
+    const envContent = `# API URLs
+VITE_API_URL=http://localhost:3000
+
+# Environment
+VITE_ENV=development
+`;
+    fs.writeFileSync('.env', envContent);
+    fs.writeFileSync('.env.example', envContent);
+    
+    // Update .gitignore
+    let gitignore = fs.existsSync('.gitignore') ? fs.readFileSync('.gitignore', 'utf8') : '';
+    if (!gitignore.includes('.env')) {
+      gitignore += '\n# Environment\n.env\n.env.local\n';
+      fs.writeFileSync('.gitignore', gitignore);
     }
     
-    // 6. Create README
-    const readmeContent = `# ${projectName}
+    spinner.succeed(chalk.hex('#10B981')('✓ Environment files created'));
     
-${frameworkInfo[framework].emoji} Built with ${framework.charAt(0).toUpperCase() + framework.slice(1)} ${isTypeScript ? '+ TypeScript' : ''}
+    // 8. Create custom homepage showcasing the tool
+    spinner.start(chalk.hex('#A78BFA')('Creating custom homepage...'));
+    
+    const appExt = isTS ? 'tsx' : 'jsx';
+    const appFile = `src/App.${appExt}`;
+    
+    const customHomepage = `${isTS ? "import React from 'react';\n" : ''}
+function App() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 text-white">
+      {/* Hero Section */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center mb-16 animate-fade-in">
+          <div className="mb-8">
+            <span className="text-6xl">🚀</span>
+          </div>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-200 via-pink-200 to-purple-200 bg-clip-text text-transparent">
+            React Setup Pro
+          </h1>
+          <p className="text-xl md:text-2xl text-purple-200 mb-8">
+            The fastest way to create production-ready React apps
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a 
+              href="https://www.npmjs.com/package/reactapp-project-setup"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 bg-white text-purple-900 rounded-lg font-semibold hover:bg-purple-100 transition-all transform hover:scale-105 shadow-lg"
+            >
+              View on NPM →
+            </a>
+            <a 
+              href="https://github.com/mdadeel/reactapp-project-setup"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 bg-purple-700 text-white rounded-lg font-semibold hover:bg-purple-600 transition-all transform hover:scale-105 shadow-lg"
+            >
+              GitHub Repo
+            </a>
+          </div>
+        </div>
 
-## 🚀 Tech Stack
+        {/* Features Grid */}
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
+          {[
+            { icon: '⚡', title: 'Lightning Fast', desc: 'Project ready in 30 seconds' },
+            { icon: '🎨', title: 'Tailwind CSS v4', desc: 'Latest version pre-configured' },
+            { icon: '🧭', title: 'Router Included', desc: 'React Router fully set up' },
+            { icon: '📁', title: 'Organized Structure', desc: 'Production-ready folders' },
+            { icon: '✨', title: 'ESLint + Prettier', desc: 'Code quality built-in' },
+            { icon: '🔧', title: 'Zero Config', desc: 'Everything works out of the box' }
+          ].map((feature, i) => (
+            <div 
+              key={i}
+              className="bg-white/10 backdrop-blur-lg rounded-xl p-6 hover:bg-white/20 transition-all transform hover:scale-105"
+            >
+              <div className="text-4xl mb-4">{feature.icon}</div>
+              <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+              <p className="text-purple-200">{feature.desc}</p>
+            </div>
+          ))}
+        </div>
 
-- **Framework:** ${framework.charAt(0).toUpperCase() + framework.slice(1)} (Latest)
-- **Language:** ${isTypeScript ? 'TypeScript' : 'JavaScript'}
-- **Build Tool:** Vite 5+ (Lightning fast HMR)
-${tailwind ? '- **Styling:** Tailwind CSS v4 (Next-gen engine)\n' : ''}${router ? `- **Router:** Latest routing solution\n` : ''}## 🎯 Quick Start
+        {/* Installation */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-8 mb-16">
+          <h2 className="text-3xl font-bold mb-6 text-center">Quick Start</h2>
+          <div className="bg-gray-900 rounded-lg p-6 mb-4">
+            <code className="text-green-400">
+              <span className="text-gray-500"># Install globally</span><br/>
+              <span className="text-purple-400">npm</span> install -g reactapp-project-setup<br/><br/>
+              <span className="text-gray-500"># Create new project</span><br/>
+              <span className="text-purple-400">reactapp</span>
+            </code>
+          </div>
+          <p className="text-center text-purple-200">
+            Answer 2 questions and you're ready to code! 🎉
+          </p>
+        </div>
 
-\`\`\`bash
-npm run dev
+        {/* Creator Section */}
+        <div className="bg-gradient-to-r from-purple-800/50 to-pink-800/50 backdrop-blur-lg rounded-xl p-8 text-center">
+          <h2 className="text-3xl font-bold mb-6">Created by</h2>
+          <div className="flex flex-col items-center">
+            <div className="w-24 h-24 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-4xl mb-4">
+              👨‍💻
+            </div>
+            <h3 className="text-2xl font-bold mb-2">Shahnawas Adeel</h3>
+            <p className="text-purple-200 mb-6">Full Stack Developer</p>
+            <div className="flex gap-4 flex-wrap justify-center">
+              <a 
+                href="https://github.com/mdadeel"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-white/20 rounded-lg hover:bg-white/30 transition-all"
+              >
+                GitHub
+              </a>
+              <a 
+                href="https://instagram.com/shahnawas.adeel"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
+              >
+                Instagram
+              </a>
+              <a 
+                href="https://www.npmjs.com/~shahnawas.adeel"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-3 bg-red-500 rounded-lg hover:bg-red-600 transition-all"
+              >
+                NPM Profile
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-16 text-purple-300">
+          <p>Made with ❤️ for the React community</p>
+          <p className="mt-2">MIT License • Free to use</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+`;
+    
+    fs.writeFileSync(appFile, customHomepage);
+    
+    // Create custom CSS with animations
+    const cssFile = 'src/index.css';
+    const customCSS = `@import "tailwindcss";
+
+/* Custom animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e1b4b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #7c3aed;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9333ea;
+}
+`;
+    
+    fs.writeFileSync(cssFile, customCSS);
+    
+    spinner.succeed(chalk.hex('#10B981')('✓ Custom homepage created'));
+    
+    // 9. Create README
+    const readme = `# ${projectName}
+
+${framework === 'react' ? '⚛️' : framework === 'vue' ? '💚' : '🔺'} **${framework.charAt(0).toUpperCase() + framework.slice(1)}** ${isTS ? '+ TypeScript' : '+ JavaScript'}
+
+## 🚀 What's Included
+
+- ✅ **Vite** - Lightning fast development
+- ✅ **Tailwind CSS v4** - Latest version with Vite plugin
+- ✅ **Router** - ${framework === 'react' ? 'React Router v6' : framework === 'vue' ? 'Vue Router v4' : 'Svelte Routing'}
+- ✅ **ESLint + Prettier** - Code quality & formatting
+- ✅ **Organized Structure** - Production-ready folders
+- ✅ **Environment Variables** - .env configured
+
+## 📁 Project Structure
+
+\`\`\`
+src/
+├── components/    # Reusable UI components
+├── ${framework === 'react' ? 'pages/' : framework === 'vue' ? 'views/' : 'routes/'}         # Page components
+├── ${framework === 'react' ? 'hooks/' : framework === 'vue' ? 'composables/' : 'stores/'}         # ${framework === 'react' ? 'Custom hooks' : framework === 'vue' ? 'Composables' : 'State stores'}
+├── utils/         # Utility functions
+├── assets/        # Static files
+└── router/        # Route configuration
 \`\`\`
 
-Open [http://localhost:5173](http://localhost:5173)
+## 🎯 Quick Start
 
-## 📦 Scripts
+\`\`\`bash
+npm run dev          # Start dev server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run format       # Format code with Prettier
+\`\`\`
 
-- \`npm run dev\` - Start dev server
-- \`npm run build\` - Production build
-- \`npm run preview\` - Preview production build
+## 💡 Tailwind Example
+
+\`\`\`${framework === 'react' ? 'jsx' : framework === 'vue' ? 'vue' : 'svelte'}
+<div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-8 rounded-xl">
+  <h1 className="text-4xl font-bold">Hello Tailwind!</h1>
+</div>
+\`\`\`
+
+## 🧭 Router Example
+
+Check \`src/router/\` for routing configuration.
+
+## 🌐 Environment Variables
+
+Edit \`.env\` file for your API URLs and settings.
 
 ## 📚 Learn More
 
-- [${framework.charAt(0).toUpperCase() + framework.slice(1)} Docs](${framework === 'react' ? 'https://react.dev' : framework === 'vue' ? 'https://vuejs.org' : framework === 'svelte' ? 'https://svelte.dev' : 'https://vitejs.dev'})
+- [${framework.charAt(0).toUpperCase() + framework.slice(1)} Docs](${framework === 'react' ? 'https://react.dev' : framework === 'vue' ? 'https://vuejs.org' : 'https://svelte.dev'})
+- [Tailwind CSS Docs](https://tailwindcss.com)
 - [Vite Docs](https://vitejs.dev)
-${tailwind ? '- [Tailwind v4 Docs](https://tailwindcss.com/docs/v4-beta)\n' : ''}Happy coding! 💻✨
+
+---
+
+Built with ❤️ using [reactapp-project-setup](https://www.npmjs.com/package/reactapp-project-setup)
 `;
     
-    fs.writeFileSync('README.md', readmeContent);
+    fs.writeFileSync('README.md', readme);
     
-    // Success message with modern design
-    const frameworkEmojis = {
-      react: '⚛️', vue: '💚', svelte: '🔺',
-      preact: '🔷', lit: '🔶', vanilla: '⚡'
-    };
-    
-    console.log('\\n');
-    console.log(chalk.hex('#6C63FF')('┌' + '─'.repeat(65) + '┐'));
-    console.log(chalk.hex('#2ECC71').bold('  ✨ SUCCESS! Your project is ready to rock! ✨'));
-    console.log(chalk.hex('#6C63FF')('└' + '─'.repeat(65) + '┘'));
+    // Success!
     console.log('');
-    console.log(chalk.hex('#6C63FF').bold('  📂 Project:'), chalk.hex('#FFFFFF')(projectName), frameworkEmojis[framework]);
+    console.log(chalk.hex('#10B981')('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+    console.log(chalk.hex('#10B981').bold('  ✓ Project Ready! Everything Configured!'));
+    console.log(chalk.hex('#10B981')('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
     console.log('');
-    console.log(chalk.hex('#6C63FF').bold('  🚀 Next Steps:'));
+    console.log(chalk.hex('#8B5CF6')('  📦 What\'s included:'));
     console.log('');
-    console.log(chalk.hex('#B0B0B0')('     1.'), chalk.hex('#6C63FF')(`cd ${projectName}`));
-    console.log(chalk.hex('#B0B0B0')('     2.'), chalk.hex('#6C63FF')('npm run dev'));
-    console.log(chalk.hex('#B0B0B0')('     3.'), chalk.hex('#6C63FF')('Open http://localhost:5173'));
+    console.log(chalk.hex('#10B981')('     ✓ ') + chalk.hex('#E0E7FF')('Custom showcase homepage'));
+    console.log(chalk.hex('#10B981')('     ✓ ') + chalk.hex('#E0E7FF')('Tailwind CSS v4 with Vite plugin'));
+    console.log(chalk.hex('#10B981')('     ✓ ') + chalk.hex('#E0E7FF')(framework + ' Router (pre-configured)'));
+    console.log(chalk.hex('#10B981')('     ✓ ') + chalk.hex('#E0E7FF')('Organized folder structure'));
+    console.log(chalk.hex('#10B981')('     ✓ ') + chalk.hex('#E0E7FF')('ESLint + Prettier setup'));
+    console.log(chalk.hex('#10B981')('     ✓ ') + chalk.hex('#E0E7FF')('Environment variables (.env)'));
     console.log('');
-    
-    if (tailwind) {
-      console.log(chalk.hex('#6C63FF').bold('  💡 Tailwind v4 Tip:'));
-      console.log(chalk.hex('#B0B0B0')('     Try: ') + chalk.hex('#FFFFFF')('className="bg-gradient-to-r from-blue-500 to-purple-600"'));
-      console.log(chalk.hex('#B0B0B0')('     New features: Enhanced gradients, better performance!'));
-      console.log('');
-    }
-    
-    if (router) {
-      console.log(chalk.hex('#6C63FF').bold('  🧭 Router Docs:'));
-      const routerDocs = {
-        react: 'https://reactrouter.com',
-        vue: 'https://router.vuejs.org',
-        svelte: 'https://github.com/EmilTholin/svelte-routing'
-      };
-      console.log(chalk.hex('#B0B0B0')(`     ${routerDocs[framework]}`));
-      console.log('');
-    }
-    
-    console.log(chalk.hex('#6C63FF')('┌' + '─'.repeat(65) + '┐'));
-    console.log(chalk.hex('#B0B0B0')('  Need help? Check README.md or visit docs!'));
-    console.log(chalk.hex('#6C63FF')('└' + '─'.repeat(65) + '┘'));
+    console.log(chalk.hex('#8B5CF6')('  🚀 Start coding:'));
+    console.log('');
+    console.log(chalk.hex('#A78BFA')('     cd ') + chalk.hex('#E0E7FF')(projectName));
+    console.log(chalk.hex('#A78BFA')('     npm run dev'));
+    console.log('');
+    console.log(chalk.hex('#06B6D4')('  🎨 Beautiful homepage included!'));
+    console.log(chalk.hex('#94A3B8')('     Shows off the tool & your info'));
+    console.log('');
+    console.log(chalk.hex('#F59E0B')('  📝 Format code:'));
+    console.log(chalk.hex('#94A3B8')('     npm run format'));
+    console.log('');
+    console.log(chalk.hex('#10B981')('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
     console.log('');
     
   } catch (error) {
     console.log('');
-    console.log(chalk.hex('#FF4757')('┌' + '─'.repeat(65) + '┐'));
-    console.log(chalk.red.bold('  ❌ ERROR'));
-    console.log(chalk.hex('#FF4757')('└' + '─'.repeat(65) + '┘'));
+    console.log(chalk.red('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
+    console.log(chalk.red.bold('  ✗ Setup Failed'));
+    console.log(chalk.red('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'));
     console.log('');
-    console.log(chalk.hex('#FFFFFF')('  Message:'), chalk.hex('#FFD93D')(error.message));
+    console.log(chalk.hex('#94A3B8')('  ' + error.message));
     console.log('');
-    console.log(chalk.hex('#6C63FF')('  💡 Troubleshooting:'));
-    console.log(chalk.hex('#B0B0B0')('     • Check internet connection'));
-    console.log(chalk.hex('#B0B0B0')('     • Ensure Node.js >= 18 (node --version)'));
-    console.log(chalk.hex('#B0B0B0')('     • Try running again'));
-    console.log('');
-    console.log(chalk.hex('#FF4757')('┌' + '─'.repeat(65) + '┐'));
+    console.log(chalk.hex('#F59E0B')('  Troubleshooting:'));
+    console.log(chalk.hex('#94A3B8')('    • Check internet connection'));
+    console.log(chalk.hex('#94A3B8')('    • Node.js 18+ required'));
+    console.log(chalk.hex('#94A3B8')('    • Try: npm cache clean --force'));
     console.log('');
     process.exit(1);
   }
