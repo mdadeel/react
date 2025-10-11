@@ -1,6 +1,6 @@
 {
   "name": "reactapp-project-setup",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "A powerful CLI to quickly scaffold React projects with Vite, TypeScript, Tailwind CSS, and more",
   "main": "index.js",
   "type": "module",
